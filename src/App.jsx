@@ -6,6 +6,7 @@ import ProfileUpdate from './pages/profileUpdate/profileUpdate';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
+<script src="http://localhost:8097"></script>
 const App = () => {
   return (
     <>

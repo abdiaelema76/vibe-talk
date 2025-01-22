@@ -1,9 +1,8 @@
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
-import { getFirestore, setDoc } from "firebase/firestore";
-import { createUserWithEmailAndPassword, getAuth } from "firebase/auth";
-import { name } from "@cloudinary/url-gen/actions/namedTransformation";
+import { getFirestore, setDoc, doc } from "firebase/firestore";
+import { createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { toast } from "react-toastify";
+
 
 const firebaseConfig = {
   apiKey: "AIzaSyAZ1klvdn8qJV1zGaRFm04978lZuyytv0Y",
@@ -16,11 +15,13 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const db = getFirestore
+const db = getFirestore(app);
 
-const signup =  async(usernamme, email, password) => {
+
+
+const signup =  async(username, email, password) => {
     try {
-        const res = await auth.createUserWithEmailAndPassword(auth,email, password);
+        const res = await createUserWithEmailAndPassword(auth,email, password);
         const user = res.user;
         await setDoc(doc(db, "users", user.uid),{
         id: user.uid,
@@ -39,4 +40,14 @@ const signup =  async(usernamme, email, password) => {
         toast.error(error.code);
     }
 }
-export {signup}
+const  login = async (email,password) =>{
+try {
+    await signInWithEmailAndPassword(auth, email, password);
+    
+} catch (error) {
+    console.error(error);
+    toast.error(error.code);
+    
+}
+}
+export {signup,login}
