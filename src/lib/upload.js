@@ -1,34 +1,33 @@
-import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-
+import { getFirestore, doc, setDoc } from "firebase/firestore";
 
 const upload = (file) => {
+  const reader = new FileReader();
 
+  reader.onload = async () => {
+    const base64String = reader.result;
 
-  const storage = getStorage();
-  const storageRef = ref(storage, "images/${Date.now() + file.name}");
+    try {
+      // Initialize Firestore
+      const db = getFirestore();
 
-  const uploadTask = uploadBytesResumable(storageRef, file);
+      // Create a document reference in the "images" collection
+      const imageDoc = doc(db, "images", `${Date.now()}_${file.name}`);
 
-  uploadTask.on(
-    "state_changed",
-    (snapshot) => {
-      const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-      console.log("Upload is " + progress + "% done");
-      switch (snapshot.state) {
-        case "paused":
-          console.log("Upload is paused");
-          break;
-        case "running":
-          console.log("Upload is running");
-          break;
-      }
-    },
-    (error) => {},
-    () => {
-      getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-        resolve(downloadURL)
-      });
+      // Save the Base64 string in Firestore
+      await setDoc(imageDoc, { image: base64String });
+
+      console.log("Upload is complete and stored in Firestore");
+    } catch (error) {
+      console.error("Error uploading image to Firestore:", error);
     }
-  );
+  };
+
+  reader.onerror = (error) => {
+    console.error("Error reading file:", error);
+  };
+
+  // Start reading the file as a Base64 string
+  reader.readAsDataURL(file);
 };
+
 export default upload;
